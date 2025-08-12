@@ -1,0 +1,26 @@
+# Python
+.venv/
+tests/.venv/
+**/__pycache__/
+*.py[cod]
+
+# pytest & coverage
+.pytest_cache/
+.coverage
+coverage.xml
+
+# build & packaging
+dist/
+build/
+*.egg-info/
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# project-specific
+exports/
+knowledge/*.jsonl
+nroot/logs/
+nroot/knowledge/*.jsonl
