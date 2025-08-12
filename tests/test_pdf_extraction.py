@@ -1,5 +1,7 @@
-import sys, os, pytest
+import sys
 from pathlib import Path
+
+import pytest
 
 # Add repo root to sys.path so "import nano" works when running from tests/
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,9 +12,11 @@ if str(ROOT) not in sys.path:
 pytest.importorskip("reportlab.pdfgen.canvas")
 pytest.importorskip("PyPDF2")
 
+
 def test_pdf_multiline_ingest(tmp_path: Path):
     from reportlab.pdfgen import canvas
-    from nano import InMemoryKV, ToolsRegistry, PerceptionEngine
+
+    from nano import InMemoryKV, PerceptionEngine, ToolsRegistry
 
     pdf = tmp_path / "multi.pdf"
     c = canvas.Canvas(str(pdf))
