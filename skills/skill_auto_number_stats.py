@@ -8,7 +8,8 @@ def number_stats(text=None, **kw):
     nums = [
         float(x)
         for x in re.findall(
-            r"(?<!\d{4}-)(?<!-\d-)(?<!-\d{2}-)(?<!\d)[-+]?\d+(?:\.\d+)?(?!\d)", text or ""
+            r"(?<!\d{4}-)(?<!-\d-)(?<!-\d{2}-)(?<!\d)[-+]?\d+(?:\.\d+)?(?!\d)",
+            text or "",
         )
     ]
     if not nums:

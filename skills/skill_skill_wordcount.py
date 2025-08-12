@@ -1,4 +1,4 @@
-"""
+﻿"""
 WordCount MAX+++ — Georgian/Latin words + decimal numbers. No regex; ignores punctuation/emoji.
 Handles Windows mojibake ('áƒ…') via a safe cp1252→utf-8 repair heuristic.
 """
@@ -9,7 +9,10 @@ from typing import Any
 VERSION = "wordcount-max+++ 2025-08-11-fallback3"
 
 SKILL_META = {
-    "description": "Counts words (Georgian/Latin) and decimal numbers; repairs mojibake; ignores punctuation/emoji",
+    "description": (
+        "Counts words (Georgian/Latin) and decimal numbers; "
+        + "repairs mojibake; ignores punctuation/emoji"
+    ),
     "version": VERSION,
 }
 
@@ -135,7 +138,10 @@ def word_count(text: str | None = None, **kw: Any) -> dict[str, Any]:
     max_tokens = int(kw.get("max_tokens", 10000))
 
     toks = _tokenize(
-        text or "", join_hyphen=join_hyphen, allow_sign=allow_sign, allow_decimal=allow_decimal
+        text or "",
+        join_hyphen=join_hyphen,
+        allow_sign=allow_sign,
+        allow_decimal=allow_decimal,
     )
 
     words: list[str] = []

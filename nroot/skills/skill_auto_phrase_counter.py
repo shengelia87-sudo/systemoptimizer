@@ -1,4 +1,5 @@
-import re, collections
+import collections
+import re
 
 SKILL_META = {"description": "Counts given phrases in text (auto-generated)"}
 _PHRASES = [

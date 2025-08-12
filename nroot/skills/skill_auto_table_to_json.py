@@ -1,5 +1,3 @@
-import re
-
 SKILL_META = {"description": "Converts simple CSV/pipe tables into JSON rows"}
 
 

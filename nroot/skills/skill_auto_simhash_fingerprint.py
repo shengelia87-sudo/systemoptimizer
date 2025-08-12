@@ -1,4 +1,5 @@
-import re, collections
+import collections
+import re
 
 WORD_RE = re.compile(r"[A-Za-z0-9\-_\u10A0-\u10FF\u2D00-\u2D2F\u1C90-\u1CBF]+")
 SKILL_META = {"description": "Computes 64-bit simhash-like hex (poly hash)"}

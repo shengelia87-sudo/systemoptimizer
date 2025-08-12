@@ -1,4 +1,4 @@
-"""
+﻿"""
 CogMind v3.2.1 — MAX+++ AutoLearner + Persistent DiskKV,
 Integrated "Engineer-Mind" + Nano Constitution + SafeFS
 Perception/Compression + Safe Self-Plugins (CLI + optional Tkinter GUI)
@@ -37,7 +37,9 @@ logger = logging.getLogger("nano")
 
 # env-ით მართვადი ლიმიტები; ნაგულისხმევად ~16MB
 MAX_STDIN_BYTES = int(os.environ.get("COGMIND_MAX_STDIN_BYTES", str(16 * 1024 * 1024)))
-MAX_INGEST_BYTES = int(os.environ.get("COGMIND_MAX_INGEST_BYTES", str(16 * 1024 * 1024)))
+MAX_INGEST_BYTES = int(
+    os.environ.get("COGMIND_MAX_INGEST_BYTES", str(16 * 1024 * 1024))
+)
 
 # ============================
 #       Data models
@@ -91,19 +93,25 @@ class PlanStep:
 
 
 class MemoryAdapter(Protocol):
-    def store(self, kind: str, payload: dict[str, Any], *, ttl: timedelta | None = None) -> str: ...
+    def store(
+        self, kind: str, payload: dict[str, Any], *, ttl: timedelta | None = None
+    ) -> str: ...
     def recall(self, record_id: str) -> dict[str, Any] | None: ...
     def search(
         self, query: str, *, k: int = 8, kind: str | None = None
     ) -> list[dict[str, Any]]: ...
-    def summarize(self, items: Iterable[dict[str, Any]], *, max_chars: int = 1000) -> str: ...
+    def summarize(
+        self, items: Iterable[dict[str, Any]], *, max_chars: int = 1000
+    ) -> str: ...
 
 
 class InMemoryKV(MemoryAdapter):
     def __init__(self) -> None:
         self._store: dict[str, dict[str, Any]] = {}
 
-    def store(self, kind: str, payload: dict[str, Any], *, ttl: timedelta | None = None) -> str:
+    def store(
+        self, kind: str, payload: dict[str, Any], *, ttl: timedelta | None = None
+    ) -> str:
         rid = str(uuid.uuid4())
         record = dict(payload)
         record.update(
@@ -120,7 +128,9 @@ class InMemoryKV(MemoryAdapter):
     def recall(self, record_id: str) -> dict[str, Any] | None:
         return self._store.get(record_id)
 
-    def search(self, query: str, *, k: int = 8, kind: str | None = None) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, *, k: int = 8, kind: str | None = None
+    ) -> list[dict[str, Any]]:
         q = (query or "").lower()
         items = [
             {"id": rid, **data}
@@ -139,11 +149,17 @@ class InMemoryKV(MemoryAdapter):
         items.sort(key=score, reverse=True)
         return items[:k]
 
-    def summarize(self, items: Iterable[dict[str, Any]], *, max_chars: int = 1000) -> str:
+    def summarize(
+        self, items: Iterable[dict[str, Any]], *, max_chars: int = 1000
+    ) -> str:
         parts: list[str] = []
         used = 0
         for it in items:
-            chunk = it.get("text") or it.get("content") or json.dumps(it, ensure_ascii=False)
+            chunk = (
+                it.get("text")
+                or it.get("content")
+                or json.dumps(it, ensure_ascii=False)
+            )
             if used + len(chunk) > max_chars:
                 chunk = chunk[: max(0, max_chars - used)]
             parts.append(chunk)
@@ -165,7 +181,9 @@ class SafeFS:
 
     def __init__(self, root_dir: str, constitution_path: str | None = None) -> None:
         self.root = os.path.abspath(root_dir)
-        self.constitution_path = os.path.abspath(constitution_path) if constitution_path else None
+        self.constitution_path = (
+            os.path.abspath(constitution_path) if constitution_path else None
+        )
         os.makedirs(self.root, exist_ok=True)
 
     def _abs(self, path: str) -> str:
@@ -279,7 +297,9 @@ class DiskKV(MemoryAdapter):
             pass
 
     # ---- MemoryAdapter API ----
-    def store(self, kind: str, payload: dict[str, Any], *, ttl: timedelta | None = None) -> str:
+    def store(
+        self, kind: str, payload: dict[str, Any], *, ttl: timedelta | None = None
+    ) -> str:
         rid = str(uuid.uuid4())
         record = dict(payload)
         record.update(
@@ -297,9 +317,15 @@ class DiskKV(MemoryAdapter):
     def recall(self, record_id: str) -> dict[str, Any] | None:
         return self._store.get(record_id)
 
-    def search(self, query: str, *, k: int = 8, kind: str | None = None) -> list[dict[str, Any]]:
+    def search(
+        self, query: str, *, k: int = 8, kind: str | None = None
+    ) -> list[dict[str, Any]]:
         q = (query or "").lower()
-        items = [rec for rec in self._store.values() if (kind is None or rec.get("kind") == kind)]
+        items = [
+            rec
+            for rec in self._store.values()
+            if (kind is None or rec.get("kind") == kind)
+        ]
 
         def score(it: dict[str, Any]) -> float:
             text = json.dumps(it, ensure_ascii=False).lower()
@@ -312,11 +338,17 @@ class DiskKV(MemoryAdapter):
         items.sort(key=score, reverse=True)
         return items[:k]
 
-    def summarize(self, items: Iterable[dict[str, Any]], *, max_chars: int = 1000) -> str:
+    def summarize(
+        self, items: Iterable[dict[str, Any]], *, max_chars: int = 1000
+    ) -> str:
         parts: list[str] = []
         used = 0
         for it in items:
-            chunk = it.get("text") or it.get("content") or json.dumps(it, ensure_ascii=False)
+            chunk = (
+                it.get("text")
+                or it.get("content")
+                or json.dumps(it, ensure_ascii=False)
+            )
             if used + len(chunk) > max_chars:
                 chunk = chunk[: max(0, max_chars - used)]
             parts.append(chunk)
@@ -380,7 +412,9 @@ class PyLintLite:
         for b in banned:
             if b in code:
                 warnings.append(f"banned:{b}")
-        long_lines = [i + 1 for i, line in enumerate(code.splitlines()) if len(line) > 120]
+        long_lines = [
+            i + 1 for i, line in enumerate(code.splitlines()) if len(line) > 120
+        ]
         if long_lines:
             warnings.append(f"long_lines:{long_lines[:10]}")
         return {"ok": len(warnings) == 0, "warnings": warnings}
@@ -472,7 +506,9 @@ class Constitution:
             "shutil",
         }
     )
-    banned_calls: set[str] = field(default_factory=lambda: {"eval", "exec", "__import__", "open"})
+    banned_calls: set[str] = field(
+        default_factory=lambda: {"eval", "exec", "__import__", "open"}
+    )
     max_top_level_statements: int = 200
     self_improvement: bool = True
     allow_autolearn: bool = True
@@ -485,10 +521,15 @@ class Constitution:
                 with open(path, encoding="utf-8") as f:
                     data = json.load(f)
                 return cls(
-                    allowed_imports=set(data.get("allowed_imports", [])) or cls().allowed_imports,
-                    banned_imports=set(data.get("banned_imports", [])) or cls().banned_imports,
-                    banned_calls=set(data.get("banned_calls", [])) or cls().banned_calls,
-                    max_top_level_statements=int(data.get("max_top_level_statements", 200)),
+                    allowed_imports=set(data.get("allowed_imports", []))
+                    or cls().allowed_imports,
+                    banned_imports=set(data.get("banned_imports", []))
+                    or cls().banned_imports,
+                    banned_calls=set(data.get("banned_calls", []))
+                    or cls().banned_calls,
+                    max_top_level_statements=int(
+                        data.get("max_top_level_statements", 200)
+                    ),
                     self_improvement=bool(data.get("self_improvement", True)),
                     allow_autolearn=bool(data.get("allow_autolearn", True)),
                     safe_root=data.get("safe_root") or None,
@@ -553,7 +594,9 @@ class Constitution:
                         "os",
                         "subprocess",
                     }:
-                        violations.append(f"banned_attr_call:{n.func.value.id}.{n.func.attr}")
+                        violations.append(
+                            f"banned_attr_call:{n.func.value.id}.{n.func.attr}"
+                        )
                 if callee in self.banned_calls:
                     violations.append(f"banned_call:{callee}")
         return violations
@@ -603,7 +646,9 @@ class SkillManager:
             code, suggested_name=os.path.splitext(os.path.basename(path))[0]
         )
 
-    def install_from_code(self, code: str, suggested_name: str | None = None) -> dict[str, Any]:
+    def install_from_code(
+        self, code: str, suggested_name: str | None = None
+    ) -> dict[str, Any]:
         violations = self.constitution.check_code(code)
         if violations:
             return {
@@ -631,7 +676,9 @@ class SkillManager:
             path = self.fs.join(self.skills_dir, name)
             try:
                 module = self._load_module(path, os.path.splitext(name)[0])
-                infos.append(self._register_module_skills(module, os.path.splitext(name)[0]))
+                infos.append(
+                    self._register_module_skills(module, os.path.splitext(name)[0])
+                )
             except Exception as e:
                 infos.append({"ok": False, "module": name, "error": f"load_error:{e}"})
         return {"ok": True, "modules": infos}
@@ -708,7 +755,9 @@ def _ensure_fallback_ocr(tools: ToolsRegistry, fs: SafeFS) -> None:
 
     try:
         tools.register(
-            FunctionTool("skill:ocr", "Fallback OCR stub: echoes filename and size", _ocr)
+            FunctionTool(
+                "skill:ocr", "Fallback OCR stub: echoes filename and size", _ocr
+            )
         )
     except ValueError:
         pass
@@ -762,9 +811,13 @@ class CognitiveEngine:
             ctx = self.memory.summarize(related, max_chars=900)
             self._log(ep, "memory", f"Context:\n{ctx}")
         steps = self._plan(task, goals or [])
-        self._log(ep, "plan", json.dumps([s.__dict__ for s in steps], ensure_ascii=False))
+        self._log(
+            ep, "plan", json.dumps([s.__dict__ for s in steps], ensure_ascii=False)
+        )
         for step in steps:
-            if not all(self._get_step(steps, d).status == "OK" for d in step.depends_on):
+            if not all(
+                self._get_step(steps, d).status == "OK" for d in step.depends_on
+            ):
                 continue
             step.status = "RUNNING"
             self._log(ep, "action", f"Running step: {step.desc}")
@@ -781,7 +834,9 @@ class CognitiveEngine:
                 self._log(ep, "critic", "Stopping plan — previous step failed.")
                 break
         if self.config.auto_store_context:
-            self.memory.store(kind="episode", payload={"topic": task, "trace": ep.text()})
+            self.memory.store(
+                kind="episode", payload={"topic": task, "trace": ep.text()}
+            )
         ep.finished_at = datetime.utcnow()
         logger.info("Run finished: %s", ep.finished_at.isoformat())
         return ep
@@ -835,7 +890,9 @@ class CognitiveEngine:
             code = self._build(step, proposal)
             lint = self.tools.call("pylint_lite", code=code)
             if not lint.get("ok"):
-                proposal = self._repair(step, proposal, reason=f"lint:{lint.get('warnings')}")
+                proposal = self._repair(
+                    step, proposal, reason=f"lint:{lint.get('warnings')}"
+                )
                 continue
             test = self.tools.call(
                 "sandbox_runner",
@@ -940,7 +997,9 @@ except Exception as e:
             want_tags = ["OK:EngineerScaffold"]
         return all(tag in out for tag in want_tags)
 
-    def _repair(self, step: PlanStep, proposal: dict[str, Any], *, reason: str) -> dict[str, Any]:
+    def _repair(
+        self, step: PlanStep, proposal: dict[str, Any], *, reason: str
+    ) -> dict[str, Any]:
         proposal = dict(proposal)
         proposal["last_reason"] = reason
         return proposal
@@ -1023,12 +1082,18 @@ class CompressedDoc:
 
 class KnowledgeCompressor:
     # Unicode-friendly tokenization: Latin, digits, underscore/hyphen + Georgian blocks
-    WORD_RE = re.compile(r"[A-Za-z0-9\-_\u10A0-\u10FF\u2D00-\u2D2F\u1C90-\u1CBF]+", re.UNICODE)
+    WORD_RE = re.compile(
+        r"[A-Za-z0-9\-_\u10A0-\u10FF\u2D00-\u2D2F\u1C90-\u1CBF]+", re.UNICODE
+    )
     URL_RE = re.compile(r"https?://\S+")
     EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
-    DATE_RE = re.compile(r"\b(20\d{2}|19\d{2})[-/.](0?[1-9]|1[0-2])[-/.](0?[1-9]|[12]\d|3[01])\b")
+    DATE_RE = re.compile(
+        r"\b(20\d{2}|19\d{2})[-/.](0?[1-9]|1[0-2])[-/.](0?[1-9]|[12]\d|3[01])\b"
+    )
     # Avoid capturing month/day fragments from YYYY-MM-DD (e.g., 2025-08 -> don't capture 08/11)
-    NUMBER_RE = re.compile(r"(?<!\d{4}-)(?<!-\d-)(?<!-\d{2}-)(?<!\d)[-+]?\d+(?:\.\d+)?(?!\d)")
+    NUMBER_RE = re.compile(
+        r"(?<!\d{4}-)(?<!-\d-)(?<!-\d{2}-)(?<!\d)[-+]?\d+(?:\.\d+)?(?!\d)"
+    )
     CAPS_SEQ = re.compile(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\b")
 
     def normalize(self, text: str) -> str:
@@ -1196,7 +1261,9 @@ class KnowledgeQuery:
         x = int(h1_hex, 16) ^ int(h2_hex, 16)
         return bin(x).count("1")
 
-    def find_near(self, sketch_hex: str, *, max_dist: int = 8, k: int = 5) -> list[dict[str, Any]]:
+    def find_near(
+        self, sketch_hex: str, *, max_dist: int = 8, k: int = 5
+    ) -> list[dict[str, Any]]:
         items = self.memory.search("", k=1000, kind="knowledge")
         out: list[tuple[int, dict[str, Any]]] = []
         for it in items:
@@ -1347,7 +1414,9 @@ class PerceptionEngine:
             }
         if not toolres.get("ok"):
             return {"ok": False, "error": toolres.get("error", "ocr_failed")}
-        return self.ingest_text(toolres.get("text", ""), title=title or os.path.basename(path))
+        return self.ingest_text(
+            toolres.get("text", ""), title=title or os.path.basename(path)
+        )
 
 
 # ============================
@@ -1404,9 +1473,9 @@ class AutoLearner:
             if ents.get("numbers"):
                 stats["has_numbers"] += 1
         if not sample_texts:
-            sample_texts = [it.get("raw_excerpt", "") for it in items if it.get("raw_excerpt")] or [
-                "sample"
-            ]
+            sample_texts = [
+                it.get("raw_excerpt", "") for it in items if it.get("raw_excerpt")
+            ] or ["sample"]
 
         top_phrases = [p for p, _ in phrases.most_common(10) if len(p) >= 3][:10]
 
@@ -1420,9 +1489,15 @@ class AutoLearner:
                     {"kind": "phrase_counter", "phrases": top_phrases},
                 )
             )
-        candidates.append(("number_stats", self._skill_number_stats(), {"kind": "number_stats"}))
-        candidates.append(("regex_extract", self._skill_regex_extract(), {"kind": "regex_extract"}))
-        candidates.append(("table_to_json", self._skill_table_to_json(), {"kind": "table_to_json"}))
+        candidates.append(
+            ("number_stats", self._skill_number_stats(), {"kind": "number_stats"})
+        )
+        candidates.append(
+            ("regex_extract", self._skill_regex_extract(), {"kind": "regex_extract"})
+        )
+        candidates.append(
+            ("table_to_json", self._skill_table_to_json(), {"kind": "table_to_json"})
+        )
         candidates.append(
             (
                 "simhash_fingerprint",
@@ -1445,8 +1520,12 @@ class AutoLearner:
                 trials += 1
                 try:
                     if name == "phrase_counter":
-                        res = self.sm.registry.call(tool_name, text=sample, phrases=top_phrases)
-                        util = sum(res.get("counts", {}).values()) if res.get("ok") else 0
+                        res = self.sm.registry.call(
+                            tool_name, text=sample, phrases=top_phrases
+                        )
+                        util = (
+                            sum(res.get("counts", {}).values()) if res.get("ok") else 0
+                        )
                     elif name == "number_stats":
                         res = self.sm.registry.call(tool_name, text=sample)
                         util = res.get("count", 0) if res.get("ok") else 0
@@ -1645,7 +1724,9 @@ def run_gui() -> int:
     perceiver = PerceptionEngine(mem, eng.tools)
     mem.store(
         kind="note",
-        payload={"text": "The system serves the wellbeing of Zurab and Nano Shengelia."},
+        payload={
+            "text": "The system serves the wellbeing of Zurab and Nano Shengelia."
+        },
     )
 
     root_w = tk.Tk()
@@ -1673,7 +1754,8 @@ def run_gui() -> int:
 
     def on_run() -> None:
         task = (
-            task_var.get().strip() or "Default: Activate learning curriculum and run engineer cycle"
+            task_var.get().strip()
+            or "Default: Activate learning curriculum and run engineer cycle"
         )
         ep = eng.run(
             task,
@@ -1724,7 +1806,9 @@ def _run_engineer_on_file(
     mem = InMemoryKV()
     eng = CognitiveEngine(
         memory=mem,
-        config=CognitiveConfig(time_limit=time_limit, max_output_bytes=max_output_bytes),
+        config=CognitiveConfig(
+            time_limit=time_limit, max_output_bytes=max_output_bytes
+        ),
     )
     goals: list[str] = []
     if target_score is not None:
@@ -2021,7 +2105,9 @@ def _perception_ops(args: argparse.Namespace, *, fs: SafeFS) -> int | None:
     perceiver = PerceptionEngine(mem, eng.tools)
 
     if args.ingest_text is not None:
-        res = perceiver.ingest_text(args.ingest_text, title=(args.title or "ingest-text"))
+        res = perceiver.ingest_text(
+            args.ingest_text, title=(args.title or "ingest-text")
+        )
         print(json.dumps(res, ensure_ascii=False, indent=2))
         return 0 if res.get("ok") else 1
     if args.ingest_file:
@@ -2065,14 +2151,18 @@ def _perception_ops(args: argparse.Namespace, *, fs: SafeFS) -> int | None:
 
         # exts -> {'txt','md',...}
         exts = {
-            e.strip().lower().lstrip(".") for e in (args.ingest_exts or "").split(",") if e.strip()
+            e.strip().lower().lstrip(".")
+            for e in (args.ingest_exts or "").split(",")
+            if e.strip()
         }
         results: list[dict[str, Any]] = []
         considered = 0
         for dirpath, dirnames, filenames in os.walk(rootdir):
             if args.ingest_skip_hidden:
                 # დირექტორიების გაფილტვრა Hidden/System + dot (OS-სპეციფიკურად)
-                dirnames[:] = [d for d in dirnames if not _is_hidden_path(os.path.join(dirpath, d))]
+                dirnames[:] = [
+                    d for d in dirnames if not _is_hidden_path(os.path.join(dirpath, d))
+                ]
             for fn in filenames:
                 fpath = os.path.join(dirpath, fn)
                 if args.ingest_skip_hidden and _is_hidden_path(fpath):
@@ -2081,10 +2171,16 @@ def _perception_ops(args: argparse.Namespace, *, fs: SafeFS) -> int | None:
                 if exts and ext not in exts:
                     continue
                 considered += 1
-                res = perceiver.ingest_file(fpath, title=os.path.relpath(fpath, rootdir))
+                res = perceiver.ingest_file(
+                    fpath, title=os.path.relpath(fpath, rootdir)
+                )
                 results.append({"path": fpath, **res})
         ok_count = sum(1 for r in results if r.get("ok"))
-        errors = [{"path": r["path"], "error": r.get("error")} for r in results if not r.get("ok")]
+        errors = [
+            {"path": r["path"], "error": r.get("error")}
+            for r in results
+            if not r.get("ok")
+        ]
         print(
             json.dumps(
                 {
@@ -2106,7 +2202,9 @@ def _perception_ops(args: argparse.Namespace, *, fs: SafeFS) -> int | None:
         return 0
     if args.export_knowledge:
         path = fs.join(
-            args.export_knowledge if os.path.isabs(args.export_knowledge) else args.export_knowledge
+            args.export_knowledge
+            if os.path.isabs(args.export_knowledge)
+            else args.export_knowledge
         )
         if hasattr(mem, "iter_items"):
             items = list(mem.iter_items("knowledge"))  # type: ignore
@@ -2172,7 +2270,9 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
             "> --skill-args-stdin > --skill-args"
         )
     )
-    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
 
     parser.add_argument(
         "task", nargs="?", default=os.environ.get("COGMIND_TASK"), help="Task to run."
@@ -2187,8 +2287,12 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Run built-in self tests and exit.",
         default=False,
     )
-    parser.add_argument("--gui", action="store_true", help="Launch the Tkinter GUI instead of CLI.")
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose logs (INFO/DEBUG).")
+    parser.add_argument(
+        "--gui", action="store_true", help="Launch the Tkinter GUI instead of CLI."
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable verbose logs (INFO/DEBUG)."
+    )
     parser.add_argument(
         "--json-logs", action="store_true", help="Emit logs as JSON lines to stdout."
     )
@@ -2200,13 +2304,17 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
 
     # Engineer flags
-    parser.add_argument("--nano", action="store_true", help="Enable NanoPolicy for the engineer.")
+    parser.add_argument(
+        "--nano", action="store_true", help="Enable NanoPolicy for the engineer."
+    )
     parser.add_argument(
         "--no-autofix",
         action="store_true",
         help="Disable auto-patching; analysis only.",
     )
-    parser.add_argument("--iters", type=int, default=3, help="Max self-heal iterations.")
+    parser.add_argument(
+        "--iters", type=int, default=3, help="Max self-heal iterations."
+    )
     parser.add_argument(
         "--target-score",
         type=float,
@@ -2221,7 +2329,9 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
 
     # Sandbox (CLI-configurable)
-    parser.add_argument("--timeout", type=int, default=5, help="Sandbox time limit (seconds).")
+    parser.add_argument(
+        "--timeout", type=int, default=5, help="Sandbox time limit (seconds)."
+    )
     parser.add_argument(
         "--max-bytes",
         type=int,
@@ -2316,8 +2426,12 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Skip hidden files and folders when using --ingest-dir.",
     )
     # <<< END NEW ARGS >>>
-    parser.add_argument("--title", type=str, default=None, help="Optional title for ingestion.")
-    parser.add_argument("--knowledge-query", type=str, default=None, help="Query knowledge store.")
+    parser.add_argument(
+        "--title", type=str, default=None, help="Optional title for ingestion."
+    )
+    parser.add_argument(
+        "--knowledge-query", type=str, default=None, help="Query knowledge store."
+    )
     parser.add_argument(
         "--export-knowledge",
         type=str,
@@ -2380,7 +2494,9 @@ def _selftests() -> int:
     eng = CognitiveEngine(memory=mem)
     # linter must catch banned eval
     lint = eng.tools.call("pylint_lite", code="eval('1')\n")
-    assert lint.get("ok") is False and any("banned" in w for w in lint.get("warnings", []))
+    assert lint.get("ok") is False and any(
+        "banned" in w for w in lint.get("warnings", [])
+    )
     # sandbox must execute and echo
     sb = eng.tools.call(
         "sandbox_runner", code="print('hello')\n", time_limit=5, max_output_bytes=4000
@@ -2388,7 +2504,9 @@ def _selftests() -> int:
     assert sb.get("ok") and sb.get("rc") == 0 and "hello" in sb.get("stdout", "")
     # accept tags logic
     assert eng._accepts(
-        PlanStep(id="1", desc="Curriculum: JavaScript Fundamentals", accept_criteria=["Pass"]),
+        PlanStep(
+            id="1", desc="Curriculum: JavaScript Fundamentals", accept_criteria=["Pass"]
+        ),
         "OK:JSFundamentals",
     )
     # NUMBER_RE should not capture date suffix 08/11 in 2025-08-11
@@ -2443,10 +2561,14 @@ def main(argv: list[str]) -> int:
         return run_gui()
 
     constitution = Constitution.load(args.constitution)
-    root_dir = args.root_dir or constitution.safe_root or r"D:\nano shengelia\systemoptimizer"
+    root_dir = (
+        args.root_dir or constitution.safe_root or r"D:\nano shengelia\systemoptimizer"
+    )
     fs = SafeFS(
         root_dir,
-        constitution_path=(os.path.abspath(args.constitution) if args.constitution else None),
+        constitution_path=(
+            os.path.abspath(args.constitution) if args.constitution else None
+        ),
     )
     if args.init_root:
         _init_root_tree(fs)
@@ -2463,7 +2585,9 @@ def main(argv: list[str]) -> int:
                 verbose=args.verbose,
             ),
         )
-        sm = SkillManager(eng.tools, args.skills_dir or fs.join("skills"), constitution, fs)
+        sm = SkillManager(
+            eng.tools, args.skills_dir or fs.join("skills"), constitution, fs
+        )
         sm.load_all_and_register()
         _ensure_fallback_ocr(eng.tools, fs)
         perceiver = PerceptionEngine(mem, eng.tools)
@@ -2516,11 +2640,15 @@ def main(argv: list[str]) -> int:
     sm.load_all_and_register()
     _ensure_fallback_ocr(eng.tools, fs)
 
-    use_autolearn = constitution.allow_autolearn if args.autolearn is None else args.autolearn
+    use_autolearn = (
+        constitution.allow_autolearn if args.autolearn is None else args.autolearn
+    )
 
     mem.store(
         kind="note",
-        payload={"text": "The system serves the wellbeing of Zurab and Nano Shengelia."},
+        payload={
+            "text": "The system serves the wellbeing of Zurab and Nano Shengelia."
+        },
     )
     ep = eng.run(
         task,
@@ -2537,20 +2665,24 @@ def main(argv: list[str]) -> int:
         try:
             al = AutoLearner(mem, sm, fs, constitution)
             made = al.propose_and_build(max_skills=3)
-            print("\n[autolearn] results:", json.dumps(made, ensure_ascii=False, indent=2))
+            print(
+                "\n[autolearn] results:", json.dumps(made, ensure_ascii=False, indent=2)
+            )
         except Exception as e:
             print("[autolearn] failed:", e)
 
     return 0
 
-
-def main_cli() -> None:
+def main_cli() -> int:
     import sys
-
-    code = main(sys.argv[1:])
-    if isinstance(code, int):
-        sys.exit(code)
-
+    code = 0
+    try:
+        code = main(sys.argv[1:])
+    except SystemExit as e:
+        code = e.code
+    if isinstance(code, int) and code is not None:
+        return code
+    return 0
 
 if __name__ == "__main__":
     try:
