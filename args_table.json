@@ -1,0 +1,31 @@
+﻿{
+    "text":  {
+                 "value":  "Project: Nano Knowledge Seed\nDate: 2025-08-11\nEmail: test@example.com\nURL: https://example.com/x?a=1\nTable\nName | Qty | Price\nBolt | 12  | 0.19\nNut  | 8   | 0.29\nშინაარსი ქართულია, რიცხვები: -2, 99.95\r\n",
+                 "PSPath":  "D:\\nano shengelia\\systemoptimizer\\seed.txt",
+                 "PSParentPath":  "D:\\nano shengelia\\systemoptimizer",
+                 "PSChildName":  "seed.txt",
+                 "PSDrive":  {
+                                 "CurrentLocation":  "nano shengelia\\systemoptimizer",
+                                 "Name":  "D",
+                                 "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                                 "Root":  "D:\\",
+                                 "Description":  "Data",
+                                 "MaximumSize":  null,
+                                 "Credential":  "System.Management.Automation.PSCredential",
+                                 "DisplayRoot":  null
+                             },
+                 "PSProvider":  {
+                                    "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                                    "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                                    "Name":  "FileSystem",
+                                    "PSSnapIn":  "Microsoft.PowerShell.Core",
+                                    "ModuleName":  "Microsoft.PowerShell.Core",
+                                    "Module":  null,
+                                    "Description":  "",
+                                    "Capabilities":  52,
+                                    "Home":  "C:\\Users\\khasi",
+                                    "Drives":  "C D"
+                                },
+                 "ReadCount":  1
+             }
+}

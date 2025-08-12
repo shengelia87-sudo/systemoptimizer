@@ -1,0 +1,9 @@
+﻿{
+  "allowed_imports": ["math", "statistics", "random", "re", "json", "typing", "dataclasses", "functools", "itertools", "collections"],
+  "banned_imports": ["os", "sys", "subprocess", "socket", "http", "urllib", "ssl", "ctypes", "multiprocessing", "threading", "pathlib", "shutil"],
+  "banned_calls": ["eval", "exec", "__import__", "open"],
+  "max_top_level_statements": 200,
+  "self_improvement": true,
+  "allow_autolearn": true,
+  "safe_root": "D:\\nano shengelia\\systemoptimizer"
+}

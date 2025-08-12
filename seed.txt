@@ -1,0 +1,9 @@
+﻿Project: Nano Knowledge Seed
+Date: 2025-08-11
+Email: test@example.com
+URL: https://example.com/x?a=1
+Table
+Name | Qty | Price
+Bolt | 12  | 0.19
+Nut  | 8   | 0.29
+შინაარსი ქართულია, რიცხვები: -2, 99.95
